@@ -8,7 +8,7 @@ Ce projet consiste à développer une application en langage C permettant à des
 
 ## 📁 Structure du projet
 
- 
+ ```bash
 gestion-reservations-vols/
 │
 ├── src/              # Fichiers source (.c)
