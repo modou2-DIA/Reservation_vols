@@ -76,8 +76,8 @@ void simuler_transaction(Vol* vols, int nb_vols, const char* filename_histo, con
 int main() {
 
 // les chemins des fichiers
-    const char* filename_vols = "data/vols.txt";
-    const char* filename_histo = "data/histo.txt";
+    const char* filename_vols = "../data/vols.txt";
+    const char* filename_histo = "../data/histo.txt";
     
     // 1. Test de chargement des vols
     printf("=== Test 1: Chargement des vols ===\n");

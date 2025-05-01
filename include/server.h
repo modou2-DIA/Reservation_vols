@@ -1,5 +1,5 @@
-
 //éviter que le fichier soit inclus plusieurs fois dans un même programme
+
 #ifndef SERVER_H
 #define SERVER_H
 

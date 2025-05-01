@@ -81,23 +81,51 @@ int ajouter_transaction_historique(const char* filename, Transaction* trans) {
 
 
 void* gestion_agence(void* arg) {
-    ThreadData* data = (ThreadData*)arg; //cast
-    char buffer[1024]; //pour lire la requête du client.
+    ThreadData* data = (ThreadData*)arg;
+    Transaction trans;
     
-    // Lire la requête du client 
-    read(data->socket_agence, buffer, sizeof(buffer));
-    
-    // Traiter la requête (ex: vérifier disponibilité)
+    int bytes_read = read(data->socket_agence, &trans, sizeof(Transaction));
+    if (bytes_read <= 0) {
+        close(data->socket_agence);
+        free(data);
+        pthread_exit(NULL);
+    }
+
     pthread_mutex_lock(data->mutex_vols);
-    int disponible = verifier_disponibilite(data->vols, data->nb_vols, "1000", 5);// vérifier si le vol 1000 a 5 places disponibles.
-    pthread_mutex_unlock(data->mutex_vols);//On libère le mutex,
     
-    // Répondre au client
-    write(data->socket_agence, disponible ? "SUCCES" : "ECHEC", 6); //6 = taille maximale des deux mots
-    
-    close(data->socket_agence); // on ferme la socket agence
-    free(data); //On libère la mémoire allouée pour ThreadData
-    pthread_exit(NULL); //On termine le thread
+    int success = 0;
+    for (int i = 0; i < data->nb_vols; i++) {
+        if (strcmp(data->vols[i].reference, trans.reference_vol) == 0) {
+            if (strcmp(trans.transaction, "Demande") == 0) {
+                if (data->vols[i].places_disponibles >= trans.valeur) {
+                    data->vols[i].places_disponibles -= trans.valeur;
+                    strcpy(trans.resultat, "succès");
+                    success = 1;
+                } else {
+                    strcpy(trans.resultat, "impossible");
+                }
+            } else if (strcmp(trans.transaction, "Annulation") == 0) {
+                data->vols[i].places_disponibles += trans.valeur;
+                strcpy(trans.resultat, "succès");
+                success = 1;
+            }
+            break;
+        }
+    }
+
+    mettre_a_jour_vols("data/vols.txt", data->vols, data->nb_vols);
+    pthread_mutex_unlock(data->mutex_vols);
+
+    pthread_mutex_lock(data->mutex_histo);
+    ajouter_transaction_historique("data/historique.txt", &trans);
+    pthread_mutex_unlock(data->mutex_histo);
+
+    send(data->socket_agence, trans.resultat, strlen(trans.resultat) + 1, 0);
+
+    close(data->socket_agence);
+    free(data);
+    pthread_exit(NULL);
 }
+
 
 
