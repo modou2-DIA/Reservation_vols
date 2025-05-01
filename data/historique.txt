@@ -2,3 +2,6 @@
 1000 1 Demande 15 succès
 2000 1 Demande 3 succès
 1000 1 Annulation 2 succès
+1000 1 Demande 3 succès
+1000 1 Annulation 2 succès
+2000 1 Annulation 2 succès

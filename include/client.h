@@ -5,6 +5,8 @@
 
 #define SERVER_IP "127.0.0.1"  // IP fixe
 #define SERVER_PORT 8080        // Port fixe
+#define CMD_FACTURE "FACTURE"  //pour une nouvelle commande
+
 
 void saisir_transaction(Transaction* trans, int agence_id);
 void afficher_resultat(const char* result);
